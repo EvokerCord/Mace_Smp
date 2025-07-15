@@ -1,23 +1,41 @@
 # Functions
 
 function getMace(i: item) :: string:
-    if name of {_i} contains "&7Wind Mace":
-        return "wind"
-    else if name of {_i} contains "&cDetonate Mace":
-        return "detonate"
-    else if name of {_i} contains "&5Void mace":
-        return "void"
+	if name of {_i} contains "&7Wind Mace":
+		return "wind"
+	else if name of {_i} contains "&cDetonate Mace":
+		return "detonate"
+	else if name of {_i} contains "&5Void mace":
+		return "void"
 
 function isMace(i: item) :: boolean:
-    if name of {_i} contains "&7Wind Mace" or "&cDetonate Mace" or "&5Void mace":
-        return true
-    else:
-        return false
+	if name of {_i} contains "&7Wind Mace" or "&cDetonate Mace" or "&5Void mace":
+		return true
+	else:
+		return false
 
 function giveMace(p: player, t: text):
-    if {_t} is "wind":
-        give 1 of {-wind.mace} to {_p}
-    else if {_t} is "detonate":
-        give {-detonate.mace} to {_p} 
-    else if {_t} is "void":
-        give {-void.mace} to {_p}
+	if {_t} is "wind":
+		give 1 of {-wind.mace} to {_p}
+	else if {_t} is "detonate":
+		give {-detonate.mace} to {_p} 
+	else if {_t} is "void":
+		give {-void.mace} to {_p}
+
+
+function setCooldown(c: text, v: int, p: player):
+	set {_uuid} to {_p}'s uuid
+	if {_c} is "wind":
+		set {%{_c}%cd::%{_uuid}%} to {_v}
+
+function cooldownsystem(p: player):
+	set {_uuid} to {_p}'s uuid
+	# wind Cds
+	if {-windcd::%{_uuid}%} is not set:
+		set {-windcd::%{_uuid}%} to 30
+	if {-windcd::%{_uuid}%} > 0:
+		remove 1 from {-windcd::%{_uuid}%}
+	if {-windcd::%{_uuid}%} < 0:
+		set {-windcd::%{_uuid}%} to 0
+	# Detonator
+	
