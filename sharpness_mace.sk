@@ -23,6 +23,7 @@ command /maces:
 		set slot 11 of {_maces::menu} to {-wind.mace}
 		set slot 13 of {_maces::menu} to {-detonate.mace}
 		set slot 13 of {_maces::menu} to {-void.mace}
+		open {_maces::menu} to player
 
 on inventory click:
 	if name of player's current inventory contains "&7ᴍᴀᴄᴇꜱ":
