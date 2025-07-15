@@ -72,6 +72,7 @@ command /trust [<text>] [<offlineplayer>]:
 					send "<##FFD773>⚡ <##FC8888>You cannot untrust yourself!" to player
 
 
+
 # FUNCTION
 
 function IsTrusted(attacker: player, victim: player) :: boolean:

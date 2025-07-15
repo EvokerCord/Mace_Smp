@@ -3,3 +3,27 @@ on load:
 	set {-wind.mace} to mace named "&7Wind Mace" with lore "&fPassive&7: Lower Cooldown on hit, no fall damage" and "&fRMB&7: Launch up into sky" with custom model data 9
 	set {-detonate.mace} to mace named "&cDetonate Mace" with lore "&fPassive&7: Explode enemies when hit" and "&fRMB&7: Create an explosion that pushes nearby entities far back" with custom model data 10
 	set {-void.mace} to mace named "&5Void mace" with lore "&fPassive&7: Every 3 hits creats a blackhole" and "&5ʙᴀɴꜱ ᴘʟᴀʏᴇʀꜱ ᴏɴ ᴋɪʟʟ" with custom model data 11
+
+# Normal Mace Crafting Disable
+
+on crafter craft:
+	if recipe result is mace:
+		cancel event
+
+on craft of mace:
+	loop 9 times:
+		if slot loop-number of player's current inventory is mace or breeze rod:
+			cancel event
+
+# Command
+
+command /maces:
+	trigger:
+		set {_maces::menu} to a new chest inventory with 3 row with name "&7ᴍᴀᴄᴇꜱ"
+		set slot 11 of {_maces::menu} to {-wind.mace}
+		set slot 13 of {_maces::menu} to {-detonate.mace}
+		set slot 13 of {_maces::menu} to {-void.mace}
+
+on inventory click:
+	if name of player's current inventory contains "&7ᴍᴀᴄᴇꜱ":
+		cancel event
