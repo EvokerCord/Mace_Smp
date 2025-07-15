@@ -13,3 +13,11 @@ function isMace(i: item) :: boolean:
         return true
     else:
         return false
+
+function giveMace(p: player, t: text):
+    if {_t} is "wind":
+        give 1 of {-wind.mace} to {_p}
+    else if {_t} is "detonate":
+        give {-detonate.mace} to {_p} 
+    else if {_t} is "void":
+        give {-void.mace} to {_p}
