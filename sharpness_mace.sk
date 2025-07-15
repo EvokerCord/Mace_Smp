@@ -1,1 +1,4 @@
-
+# Sharpness Maces 3
+on load:
+    set {-wind.mace} to mace named "&7Wind Mace" with lore "&fPassive&f: Lower Cooldown on hit, no fall damage" and "&fRMB&f: Launch up into sky"
+    
