@@ -1,0 +1,81 @@
+# Trust skript
+on tab complete for "/trust":
+	set tab completions for position 1 to "add" and "remove" and "list"
+	set tab completions for position 2 to all players
+
+on join:
+	if {Trusted::%uuid of player%::*} is set:
+		set {-Trusted::%uuid of player%::*} to {Trusted::%uuid of player%::*}
+
+on disconnect:
+	if {-Trusted::%uuid of player%::*} is set:
+		set {Trusted::%uuid of player%::*} to {-Trusted::%uuid of player%::*}
+
+on skript stop:
+	loop all players:
+		if {-Trusted::%uuid of loop-player%::*} is set:
+			set {Trusted::%uuid of loop-player%::*} to {-Trusted::%uuid of loop-player%::*}
+
+on inventory click:
+	if name of event-inventory is "<##FFE4AB>ᴛʀᴜsᴛᴇᴅ ᴘʟᴀʏᴇʀs":
+		cancel event
+		if event-item is a player head:
+			set {_T} to event-item's name
+			replace all "<##B8FFFB>" with "" in {_T}
+			set {_Tplayer} to "%{_T}%" parsed as offline player
+
+			set {_uuid} to uuid of player
+			send "<##FFD773>⚡ &cUntrusted <##B8FFFB>%{_T}%" to player
+			remove {_Tplayer}'s uuid from {-Trusted::%uuid of player%::*}
+			remove event-item from player's current inventory
+
+command /trust [<text>] [<offlineplayer>]:
+	trigger:
+		set {_uuid} to uuid of player
+		set {_arguuid} to uuid of arg-2
+		if arg-1 is "list":
+			set {_s} to 0
+			set {_maces::Trusted::GUI} to a new chest inventory with 3 row with name "<##FFE4AB>ᴛʀᴜsᴛᴇᴅ ᴘʟᴀʏᴇʀs"
+			loop {-Trusted::%uuid of player%::*}:
+
+				set {_p} to loop-value parsed as offline player
+				set {_sk} to skull of {_p}
+				set slot {_s} of {_maces::Trusted::GUI} to {_sk} named "<##B8FFFB>%{_p}%" with lore "" and "&fClick to &cuntrust"
+				add 1 to {_s}
+
+			open {_maces::Trusted::GUI} to player
+
+		if arg-1 is "add":
+			if arg-2 is set:
+				if arg-2 is not player:
+					if {-Trusted::%uuid of player%::*} contains {_arguuid}:
+						send "<##FFD773>⚡ <##B8FFFB>%arg-2% &cis already trusted!" to player
+
+
+					else:
+						
+						set {_uuid} to uuid of player
+						add {_arguuid} to {-Trusted::%uuid of player%::*}
+
+						send "<##FFD773>⚡ &aTrusted <##B8FFFB>%arg-2%" to player
+				else:
+					send "<##FFD773>⚡ <##FC8888>You cannot trust yourself!" to player
+
+					
+		if arg-1 is "remove":
+			if arg-2 is set:
+				if arg-2 is not player:
+					if {-Trusted::%uuid of player%::*} contains {_arguuid}:
+						send "<##FFD773>⚡ &cUntrusted <##B8FFFB>%arg-2%" to player
+						remove {_arguuid} from {-Trusted::%uuid of player%::*}
+				else:
+					send "<##FFD773>⚡ <##FC8888>You cannot untrust yourself!" to player
+
+
+# FUNCTION
+
+function IsTrusted(attacker: player, victim: player) :: boolean:
+	if {-Trusted::%uuid of {_attacker}%::*} contains uuid of {_victim}:
+		return true
+	else:
+		return false
