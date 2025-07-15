@@ -11,9 +11,11 @@ on crafter craft:
 		cancel event
 
 on craft of mace:
-	loop 9 times:
-		if slot loop-number of player's current inventory is mace or breeze rod:
-			cancel event
+	if isMace(event-item) is false:
+		cancel event
+	else:
+		set {_m} to getMace(event-item)
+		send title "&f%{_m}% has been Crafted"
 
 # Command
 
