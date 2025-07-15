@@ -1,5 +1,5 @@
 # Sharpness Maces 3
 on load:
-    set {-wind.mace} to mace named "&7Wind Mace" with lore "&fPassive&7: Lower Cooldown on hit, no fall damage" and "&fRMB&7: Launch up into sky"
-    set {-detonate.mace} to mace named "&cDetonate Mace" with lore "&fPassive&7: Explode enemies when hit" and "&fRMB&7: Create an explosion that pushes nearby entities far back"
-    set {-void.mace} to mace named "&5Void mace" with lore "&fPassive&7: Every 3 hits creats a blackhole" and "&5ʙᴀɴꜱ ᴘʟᴀʏᴇʀꜱ ᴏɴ ᴋɪʟʟ"
+	set {-wind.mace} to mace named "&7Wind Mace" with lore "&fPassive&7: Lower Cooldown on hit, no fall damage" and "&fRMB&7: Launch up into sky" with custom model data 9
+	set {-detonate.mace} to mace named "&cDetonate Mace" with lore "&fPassive&7: Explode enemies when hit" and "&fRMB&7: Create an explosion that pushes nearby entities far back" with custom model data 10
+	set {-void.mace} to mace named "&5Void mace" with lore "&fPassive&7: Every 3 hits creats a blackhole" and "&5ʙᴀɴꜱ ᴘʟᴀʏᴇʀꜱ ᴏɴ ᴋɪʟʟ" with custom model data 11
