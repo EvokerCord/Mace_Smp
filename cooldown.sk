@@ -1,13 +1,5 @@
 # Cooldowns and actionbar work
 
-every 1 second:
-	loop all players:
-		if isMace(loop-player's held item) is true:
-			if getMace(loop-player's held item) is "wind":
-				if {-windcd::%{_uuid}%} > 0:
-					send action bar "&b%{-windcd::%loop-player's uuid%}%" to loop-player
-				else:
-					send action bar " " to loop-player
 
 on damage:
 	if attacker is player:
