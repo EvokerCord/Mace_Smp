@@ -29,19 +29,17 @@ every 1 second:
 
 function actionbar(p: player, t: text):
 	set {_uuid} to {_p}'s uuid
+	# Wind Mace
 	if isMace({_p}'s {_t}) is true:
 		if getMace({_p}'s {_t}) is "wind":
 			set {_cd} to getMace({_p}'s {_t})
 			if {-%{_cd}%cd::%{_uuid}%} > 0:
 				send action bar "&b%{-%{_cd}%cd::%{_uuid}%}%" to {_p}
-			else:
-				send action bar " " to {_p}
+		# Detonate Mace
 		if getMace({_p}'s {_t}) is "detonate":
 			set {_cd} to getMace({_p}'s {_t})
 			if {-%{_cd}%cd::%{_uuid}%} > 0:
 				send action bar "&b%{-%{_cd}%cd::%{_uuid}%}%" to {_p}
-			else:
-				send action bar " " to {_p}
 
 function setCooldown(c: text, v: int, p: player):
 	set {_uuid} to {_p}'s uuid
