@@ -24,18 +24,46 @@ command /maces:
 		set {_maces::menu} to a new chest inventory with 3 row with name "&7ᴍᴀᴄᴇꜱ"
 		set slot 11 of {_maces::menu} to {-wind.mace}
 		set slot 13 of {_maces::menu} to {-detonate.mace}
-		set slot 13 of {_maces::menu} to {-void.mace}
+		set slot 15 of {_maces::menu} to {-void.mace}
 		open {_maces::menu} to player
 
 on inventory click:
-	if name of player's current inventory contains "&7ᴍᴀᴄᴇꜱ":
-		cancel event
+	if player does not have permission "op":
+		if name of player's current inventory contains "&7ᴍᴀᴄᴇꜱ":
+			cancel event
 
-# Cooldowns and actionbar work
 every 1 second:
 	loop all players:
-		actionbar(loop-player, held item)
-		actionbar(loop-player, offhand item)
+		set {_p} to loop-player
+		set {_uuid} to {_p}'s uuid
+		# Wind Mace
+		if isMace({_p}'s held item) is true:
+			if getMace({_p}'s held item) is "wind":
+				if {-windcd::%{_uuid}%} > 0:
+					send action bar "&b%{-windcd::%{_uuid}%}%" to {_p}
+	# Detonate Mace
+			if getMace({_p}'s held item) is "detonate":
+				if {-detonatecd::%{_uuid}%} > 0:
+					send action bar "&b%{-detonatecd::%{_uuid}%}%" to {_p}
+
+
+every 1 second:
+	loop all players:
+		set {_uuid} to loop-player's uuid
+	# wind Cds
+		if {-windcd::%{_uuid}%} is not set:
+			set {-windcd::%{_uuid}%} to 30
+		if {-windcd::%{_uuid}%} is not 0:
+			remove 1 from {-windcd::%{_uuid}%}
+		if {-windcd::%{_uuid}%} < 0:
+			set {-windcd::%{_uuid}%} to 0
+	# Detonator
+		if {-detonatecd::%{_uuid}%} is not set:
+			set {-detonatecd::%{_uuid}%} to 30
+		if {-detonatecd::%{_uuid}%} is not 0:
+			remove 1 from {-detonatecd::%{_uuid}%}
+		if {-detonatecd::%{_uuid}%} < 0:
+			set {-detonatecd::%{_uuid}%} to 0
 
 # Damage Events
 
@@ -61,8 +89,8 @@ on damage:
 		getMace(victim's offhand item) is "detonate"
 	then:
 		if any:
-			if damage cause is block explosion
-			if damage cause is entity explosion
+			damage cause is block explosion
+			damage cause is entity explosion
 		then:
 			cancel event
 
@@ -71,18 +99,9 @@ on damage:
 		getMace(attacker's held item) is "detonate"
 		hit is critical
 	then:
-		create explosion at victim with force 2.5
+		create explosion of force 2.5 at victim's location
 
-on damage:
-	if all:
-		getMace(attacker's held item) is "void"
-		hit is critical
-	then:
-		if {-counter::%attacker's uuid%} < 3:
-			add 1 to {-counter::%attacker's uuid%}
-		if {-counter::%attacker's uuid%} is 3:
-			set {-counter::%attacker's uuid%} to 0
-			blackholePull(attacker, victim)
+
 
 
 on join:
@@ -107,20 +126,117 @@ on death of player:
 on right click:
 	if isMace(player's held item) is true:
 		if getMace(player's held item) is "wind":
-			if isReady(player, wind) is true:
-				push player upwrads at speed 0.4
+			set {_i} to "wind"
+			if {-windcd::%player's uuid%} is 0:
+				push player up at speed 0.4
 				push player forward at speed 2.5
-				setCooldown(wind, 35, player)
-		else if getMace(player's held item) is "detonate":
-			if isReady(player, detonate) is true:
+				set {-windcd::%player's uuid%} to 35
+		if getMace(player's held item) is "detonate":
+			if {-detonatecd::%player's uuid%} is 0:
 				set {_p} to player
-				setCooldown(detonate, 35, player)
-				loop all players witin 5 blocks of player:
-					if loop-player is not {_p}:
-						if IsTrusted({_p}, loop-player) is false:
-							set {_d} to direction from {_p} to loop-player
-							push loop-player {_d} at speed 3
-							damage loop-player by 4 hearts
+				set {-detonatecd::%player's uuid%} to 35
+				loop all entities within 5 blocks of player:
+					if loop-entity is not {_p}:
+						if IsTrusted({_p}, loop-entity) is false:
+							set {_d} to vector from {_p} to loop-entity
+							push loop-entity up at speed 0.4
+							push loop-entity {_d} at speed 3
+							damage loop-entity by 4 hearts
 						else:
-							set {_d} to direction from {_p} to loop-player
-							push loop-player {_d} at speed 3
+							set {_d} to vector from {_p} to loop-entity
+							push loop-entity up at speed 0.4
+							push loop-entity {_d} at speed 3
+
+command /givemace [<text>]:
+	permission: op
+	trigger:
+		if arg-1 is set:
+			if arg-1 is "wind":
+				giveMace(player, arg-1)
+			if arg-1 is "detonate":
+				giveMace(player, arg-1)
+			if arg-1 is "void":
+				giveMace(player, arg-1)
+
+
+command /cooldown [<player>]:
+	permission: op
+	trigger:
+		if arg-1 is not set:
+			resetmaceCd(player)
+		else:
+			resetmaceCd(arg-1)
+
+# ----------[Functions]----------------
+
+
+
+# Functions
+
+function resetmaceCd(p: player):
+	set {_uuid} to {_p}'s uuid
+	set {-macecd::%{_uuid}%} to 0
+	set {-detonatecd::%{_uuid}%} to 0
+
+
+function getMace(i: item) :: string:
+	if name of {_i} contains "&7Wind Mace":
+		return "wind"
+	else if name of {_i} contains "&cDetonate Mace":
+		return "detonate"
+	else if name of {_i} contains "&5Void mace":
+		return "void"
+
+function isMace(i: item) :: boolean:
+	if name of {_i} contains "&7Wind Mace" or "&cDetonate Mace" or "&5Void mace":
+		return true
+	else:
+		return false
+
+function giveMace(p: player, t: text):
+	if {_t} is "wind":
+		give 1 of {-wind.mace} to {_p}
+	else if {_t} is "detonate":
+		give {-detonate.mace} to {_p} 
+	else if {_t} is "void":
+		give {-void.mace} to {_p}
+
+
+# BLACK HOLE STUFF
+
+function blackholeParticles(l: location):
+	set {_uuid} to {_p}'s uuid
+	loop 150 times:
+		draw 2 of dust using dustTransition(rgb(62, 11, 156), black, 1.5) at {_l} with offset vector(0.5, 0.7, 0.5) with force
+		draw 2 of smoke at {_l} with offset vector(0.1, 1, 0.2) with extra 0.8 with force
+		wait 1 tick
+
+function blackholePull(p: player, p2: player):
+	set {_vloc} to {_p2}'s location
+	set {_d} to vector from {_p} to {_p2}
+	loop 100 times:
+		loop all entities within 15 blocks of {_vloc}:
+			if IsTrusted({_p}, loop-entity) is false:
+				push loop-entity {_d} with speed 1
+				damage loop-entity by 4
+				wait 3 ticks
+
+on damage:
+	if name of attacker's held item contains "&5Void mace":
+		if hit is critical:
+			if {-counter::%attacker's uuid%} < 4:
+				add 1 to {-counter::%attacker's uuid%}
+			if {-counter::%attacker's uuid%} is 3:
+				set {_vloc} to victim's location
+				set {-counter::%attacker's uuid%} to 0
+				set {_aloc} to attacker's location
+				set {_d} to vector from {_aloc} to {_vloc}
+				set {_a} to attacker
+				loop 200 times:
+					blackholeParticles({_vloc})
+					loop all entities within 15 blocks of {_vloc}:
+						if IsTrusted({_p}, loop-entity) is false:
+							if loop-entity is not {_a}:
+								push loop-entity {_d} with speed 1
+								damage loop-entity by 4
+								wait 2 ticks
