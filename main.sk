@@ -121,6 +121,12 @@ on death of player:
 		broadcast "&c%victim% &b has been eliminated by &5Void mace"
 
 
+function dashTrial(p: player):
+	loop 30 times:
+		set {_loc} to {_p}'s location
+		draw 3 cloud at {_loc} with extra 0.00001
+		wait 2 ticks
+
 # Item's Use
 
 on right click:
@@ -130,6 +136,7 @@ on right click:
 			if {-windcd::%player's uuid%} is 0:
 				push player up at speed 0.4
 				push player forward at speed 2.5
+				dashTrial(player)
 				set {-windcd::%player's uuid%} to 35
 		if getMace(player's held item) is "detonate":
 			if {-detonatecd::%player's uuid%} is 0:
@@ -159,13 +166,17 @@ command /givemace [<text>]:
 				giveMace(player, arg-1)
 
 
-command /cooldown [<player>]:
+command /cooldown [<text>]:
 	permission: op
 	trigger:
-		if arg-1 is not set:
-			resetmaceCd(player)
+		if arg-1 is set:
+			set {_p} to arg-1 parsed as player
+			set {_uuid} to {_p}'s uuid
+			set {-macecd::%{_uuid}%} to 0
+			set {-detonatecd::%{_uuid}%} to 0
 		else:
-			resetmaceCd(arg-1)
+			delete {-windcd::%player's uuid%}
+			delete {-detonatecd::%player's uuid%}
 
 # ----------[Functions]----------------
 
