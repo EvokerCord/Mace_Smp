@@ -81,20 +81,9 @@ on damage:
 		if {-counter::%attacker's uuid%} < 3:
 			add 1 to {-counter::%attacker's uuid%}
 		if {-counter::%attacker's uuid%} is 3:
-			set  {-counter::%attacker's uuid%} to 0
+			set {-counter::%attacker's uuid%} to 0
+			blackholePull(attacker, victim)
 
-function blackholePull(p: player, p2: player):
-	set {_vloc} to {_p2}'s location
-	set {_d} to direction from {_p} to {_vloc}
-	set {_uuid} to {_p}'s uuid
-	set {-blackhole::%{_uuid}%} to true
-	loop 60 times:
-		loop all players:
-			if IsTrusted({_p}, loop-player) is false:
-				push loop-player {_d} with speed 0.5
-				damage loop-player by 4
-				blackholeParticles({_vloc})
-	set {-blackhole::%{_uuid}%} to false
 
 on join:
 	set {-blackhole::%player's uuid%} to false
@@ -104,12 +93,34 @@ on death of player:
 	set {-blackhole::%victim's uuid%} to false
 	set {-counter::%victim's uuid%} to 0
 
+on death of player:
+	if all:
+		attacker is player
+		getMace(attacker's held item) is "void"
+	then:
+		ban victim due to "&cEliminated By Void mace"
+		broadcast "&c%victim% &b has been eliminated by &5Void mace"
 
 
+# Item's Use
 
-function blackholeParticles(l: loc, p: player):
-	set {_uuid} to {_p}'s uuid
-	if {-blackhole::%{_uuid}%} is true:
-		loop 150 times:
-			draw 4 of dust using dustTransition(purple, black, 5) at {_vloc} with offset vector(0.5 0.7 0.5) with extra 0.5 with force
-			wait 1 tick
+on right click:
+	if isMace(player's held item) is true:
+		if getMace(player's held item) is "wind":
+			if isReady(player, wind) is true:
+				push player upwrads at speed 0.4
+				push player forward at speed 2.5
+				setCooldown(wind, 35, player)
+		else if getMace(player's held item) is "detonate":
+			if isReady(player, detonate) is true:
+				set {_p} to player
+				setCooldown(detonate, 35, player)
+				loop all players witin 5 blocks of player:
+					if loop-player is not {_p}:
+						if IsTrusted({_p}, loop-player) is false:
+							set {_d} to direction from {_p} to loop-player
+							push loop-player {_d} at speed 3
+							damage loop-player by 4 hearts
+						else:
+							set {_d} to direction from {_p} to loop-player
+							push loop-player {_d} at speed 3
