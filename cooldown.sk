@@ -1,8 +1,0 @@
-# Cooldowns and actionbar work
-
-
-on damage:
-	if attacker is player:
-		if getMace(attacker's held item) is "wind":
-			set {_d} to damage
-			remove {_d} from {-windcd::%attacker's uuid%}

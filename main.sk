@@ -30,3 +30,86 @@ command /maces:
 on inventory click:
 	if name of player's current inventory contains "&7ᴍᴀᴄᴇꜱ":
 		cancel event
+
+# Cooldowns and actionbar work
+every 1 second:
+	loop all players:
+		actionbar(loop-player, held item)
+		actionbar(loop-player, offhand item)
+
+# Damage Events
+
+on damage:
+	if all:
+		getMace(attacker's held item) is "wind"
+		hit is critical
+	then:	
+		set {_d} to damage / 3
+		remove {_d} from {-windcd::%attacker's uuid%}
+
+on damage:
+	if damage cause is fall:
+		if any:
+			getMace(victim's held item) is "wind"
+			getMace(victim's offhand item) is "wind"
+		then:
+			cancel event
+
+on damage:
+	if any:
+		getMace(victim's held item) is "detonate"
+		getMace(victim's offhand item) is "detonate"
+	then:
+		if any:
+			if damage cause is block explosion
+			if damage cause is entity explosion
+		then:
+			cancel event
+
+on damage:
+	if all:
+		getMace(attacker's held item) is "detonate"
+		hit is critical
+	then:
+		create explosion at victim with force 2.5
+
+on damage:
+	if all:
+		getMace(attacker's held item) is "void"
+		hit is critical
+	then:
+		if {-counter::%attacker's uuid%} < 3:
+			add 1 to {-counter::%attacker's uuid%}
+		if {-counter::%attacker's uuid%} is 3:
+			set  {-counter::%attacker's uuid%} to 0
+
+function blackholePull(p: player, p2: player):
+	set {_vloc} to {_p2}'s location
+	set {_d} to direction from {_p} to {_vloc}
+	set {_uuid} to {_p}'s uuid
+	set {-blackhole::%{_uuid}%} to true
+	loop 60 times:
+		loop all players:
+			if IsTrusted({_p}, loop-player) is false:
+				push loop-player {_d} with speed 0.5
+				damage loop-player by 4
+				blackholeParticles({_vloc})
+	set {-blackhole::%{_uuid}%} to false
+
+on join:
+	set {-blackhole::%player's uuid%} to false
+	set {-counter::%player's uuid%} to 0
+
+on death of player:
+	set {-blackhole::%victim's uuid%} to false
+	set {-counter::%victim's uuid%} to 0
+
+
+
+
+function blackholeParticles(l: loc, p: player):
+	set {_uuid} to {_p}'s uuid
+	if {-blackhole::%{_uuid}%} is true:
+		loop 150 times:
+			draw 4 of dust using dustTransition(purple, black, 5) at {_vloc} with offset vector(0.5 0.7 0.5) with extra 0.5 with force
+			wait 1 tick

@@ -22,11 +22,6 @@ function giveMace(p: player, t: text):
 	else if {_t} is "void":
 		give {-void.mace} to {_p}
 
-every 1 second:
-	loop all players:
-		actionbar(loop-player, held item)
-		actionbar(loop-player, offhand item)
-
 function actionbar(p: player, t: text):
 	set {_uuid} to {_p}'s uuid
 	# Wind Mace
