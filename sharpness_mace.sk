@@ -1,4 +1,0 @@
-# Sharpness Maces 3
-on load:
-    set {-wind.mace} to mace named "&7Wind Mace" with lore "&fPassive&7: Lower Cooldown on hit, no fall damage" and "&fRMB&7: Launch up into sky"
-    set {-detonate.mace} to mace named "&cDetonate Mace" with lore "&fPassiave&7: Explode enemies when hit" and "&fRMB&7: Create an explosion that pushes nearby entities far back"

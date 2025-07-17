@@ -1,0 +1,43 @@
+# Sk reflect stuff
+import:
+	org.bukkit.event.player.PlayerInteractEntityEvent
+	org.bukkit.event.player.PlayerInteractEvent
+	org.bukkit.inventory.EquipmentSlot
+
+# DRAGON EGG AND MACE
+
+on inventory drag:
+	set {_slots::*} to event.getRawSlots()
+	loop {_slots::*}:
+		set {_slot} to "%loop-value%"
+		replace all "[" with "" in {_slot}
+		replace all "]" with "" in {_slot}
+		set {_list::*} to split {_slot} at ", "
+
+	loop {_list::*}:
+		set {_num} to loop-value parsed as integer
+		if player's open inventory = event.getView().getInventory({_num}):
+			if past event-item is a dragon egg or a mace:
+				cancel event
+
+on inventory click:
+	if player's open inventory = event-inventory:
+		if any:
+			click action is lmb
+			click action is rmb
+		then:
+			if player's cursor slot is a dragon egg or a mace:
+				cancel event
+		if click action is swap offhand:
+			if player's offhand item is a mace or a dragon egg:
+				cancel event
+		if click action is number key:
+			if player's inventory.getItem(event.getHotbarButton()) is a dragon egg or a mace:
+				cancel event
+	if event-inventory = player's inventory:
+		if any:
+			click action is shift+lmb
+			click action is shift+rmb
+		then:
+			if event-item is a mace or a dragon egg:
+				cancel event

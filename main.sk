@@ -1,0 +1,126 @@
+# Sharpness Maces 3
+on load:
+	set {-wind.mace} to mace named "&7Wind Mace" with lore "&fPassive&7: Lower Cooldown on hit, no fall damage" and "&fRMB&7: Launch up into sky" with custom model data 9
+	set {-detonate.mace} to mace named "&cDetonate Mace" with lore "&fPassive&7: Explode enemies when hit" and "&fRMB&7: Create an explosion that pushes nearby entities far back" with custom model data 10
+	set {-void.mace} to mace named "&5Void mace" with lore "&fPassive&7: Every 3 hits creats a blackhole" and "&5ʙᴀɴꜱ ᴘʟᴀʏᴇʀꜱ ᴏɴ ᴋɪʟʟ" with custom model data 11
+
+# Normal Mace Crafting Disable
+
+on crafter craft:
+	if recipe result is mace:
+		cancel event
+
+on craft of mace:
+	if isMace(event-item) is false:
+		cancel event
+	else:
+		set {_m} to getMace(event-item)
+		send title "&f%{_m}% has been Crafted"
+
+# Command
+
+command /maces:
+	trigger:
+		set {_maces::menu} to a new chest inventory with 3 row with name "&7ᴍᴀᴄᴇꜱ"
+		set slot 11 of {_maces::menu} to {-wind.mace}
+		set slot 13 of {_maces::menu} to {-detonate.mace}
+		set slot 13 of {_maces::menu} to {-void.mace}
+		open {_maces::menu} to player
+
+on inventory click:
+	if name of player's current inventory contains "&7ᴍᴀᴄᴇꜱ":
+		cancel event
+
+# Cooldowns and actionbar work
+every 1 second:
+	loop all players:
+		actionbar(loop-player, held item)
+		actionbar(loop-player, offhand item)
+
+# Damage Events
+
+on damage:
+	if all:
+		getMace(attacker's held item) is "wind"
+		hit is critical
+	then:	
+		set {_d} to damage / 3
+		remove {_d} from {-windcd::%attacker's uuid%}
+
+on damage:
+	if damage cause is fall:
+		if any:
+			getMace(victim's held item) is "wind"
+			getMace(victim's offhand item) is "wind"
+		then:
+			cancel event
+
+on damage:
+	if any:
+		getMace(victim's held item) is "detonate"
+		getMace(victim's offhand item) is "detonate"
+	then:
+		if any:
+			if damage cause is block explosion
+			if damage cause is entity explosion
+		then:
+			cancel event
+
+on damage:
+	if all:
+		getMace(attacker's held item) is "detonate"
+		hit is critical
+	then:
+		create explosion at victim with force 2.5
+
+on damage:
+	if all:
+		getMace(attacker's held item) is "void"
+		hit is critical
+	then:
+		if {-counter::%attacker's uuid%} < 3:
+			add 1 to {-counter::%attacker's uuid%}
+		if {-counter::%attacker's uuid%} is 3:
+			set {-counter::%attacker's uuid%} to 0
+			blackholePull(attacker, victim)
+
+
+on join:
+	set {-blackhole::%player's uuid%} to false
+	set {-counter::%player's uuid%} to 0
+
+on death of player:
+	set {-blackhole::%victim's uuid%} to false
+	set {-counter::%victim's uuid%} to 0
+
+on death of player:
+	if all:
+		attacker is player
+		getMace(attacker's held item) is "void"
+	then:
+		ban victim due to "&cEliminated By Void mace"
+		broadcast "&c%victim% &b has been eliminated by &5Void mace"
+
+
+# Item's Use
+
+on right click:
+	if isMace(player's held item) is true:
+		if getMace(player's held item) is "wind":
+			if isReady(player, wind) is true:
+				push player upwrads at speed 0.4
+				push player forward at speed 2.5
+				setCooldown(wind, 35, player)
+		else if getMace(player's held item) is "detonate":
+			if isReady(player, detonate) is true:
+				set {_p} to player
+				setCooldown(detonate, 35, player)
+				loop all players witin 5 blocks of player:
+					if loop-player is not {_p}:
+						if IsTrusted({_p}, loop-player) is false:
+							set {_d} to direction from {_p} to loop-player
+							push loop-player {_d} at speed 3
+							damage loop-player by 4 hearts
+						else:
+							set {_d} to direction from {_p} to loop-player
+							push loop-player {_d} at speed 3
