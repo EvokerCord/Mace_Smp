@@ -8,4 +8,4 @@ For This Remake we will only do the maces cuz we are not allowed to leak the ass
 # Dependencies
 - skript
 - skbee
-- skrayfall
+- sk-reflect
